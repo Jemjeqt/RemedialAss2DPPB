@@ -163,5 +163,3 @@ Aplikasi menampilkan:
 Asesmen Praktikum DPPB 2 - Platform Portal Lowongan Kerja Berbasis Web Flutter
 
 ---
-
-**SmartJob Mobile** - Dinas Tenaga Kerja Kabupaten Bandung © 2025
