@@ -141,67 +141,470 @@ smartjob_mobile/
 | 9   | Buat API Backend  | `api/server.js`        | RESTful API Node.js                  |
 | 10  | Integrasi API     | `services/*.dart`      | HTTP client Flutter                  |
 
-### 4.5 Detail Implementasi Setiap File
+### 4.5 Implementasi Kode
 
-#### A. main.dart (Entry Point)
+#### A. main.dart - Entry Point dengan Named Routes
 
-- Membuat MaterialApp dengan konfigurasi tema Material 3
-- Mendefinisikan Named Routes untuk navigasi
-- Set initial route ke MainNavigation
+```dart
+import 'package:flutter/material.dart';
+import 'pages/profile_page.dart';
+import 'pages/settings_page.dart';
+import 'pages/login_page.dart';
+import 'pages/register_page.dart';
+import 'pages/apply_job_page.dart';
+import 'widgets/main_navigation.dart';
 
-#### B. dummy_data.dart (Data Dummy)
+void main() {
+  runApp(const SmartJobApp());
+}
 
-- Membuat List lowonganList berisi 8 data lowongan kerja
-- Membuat List lamaranList berisi riwayat lamaran
-- Membuat Map userProfile untuk data profil pengguna
+class SmartJobApp extends StatelessWidget {
+  const SmartJobApp({super.key});
 
-#### C. HomePage (Halaman Utama)
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SmartJob Mobile',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1565C0),
+          primary: const Color(0xFF1565C0),
+          secondary: const Color(0xFF42A5F5),
+          surface: Colors.white,
+        ),
+        fontFamily: 'Roboto',
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1565C0),
+          foregroundColor: Colors.white,
+          elevation: 2,
+          centerTitle: true,
+        ),
+        useMaterial3: true,
+      ),
+      // Named Routes
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MainNavigation(),
+        '/profile': (context) => const ProfilePage(),
+        '/settings': (context) => const SettingsPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/apply': (context) => const ApplyJobPage(),
+      },
+    );
+  }
+}
+```
 
-- Menampilkan sambutan dan deskripsi aplikasi
-- Tombol navigasi ke fitur utama menggunakan InkWell dan ElevatedButton
-- Layout menggunakan Column dan Container
+#### B. main_navigation.dart - BottomNavigationBar
 
-#### D. MainNavigation (BottomNavigationBar)
+```dart
+import 'package:flutter/material.dart';
+import '../pages/home_page.dart';
+import '../pages/lowongan_page.dart';
+import '../pages/lamaran_page.dart';
 
-- Implementasi BottomNavigationBar dengan 3 item (Home, Lowongan, Lamaran)
-- State management untuk \_selectedIndex
-- Perpindahan halaman dengan IndexedStack
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
 
-#### E. LowonganPage (Daftar Lowongan)
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
 
-- ListView.builder untuk menampilkan daftar lowongan
-- Card widget untuk setiap item lowongan
-- Tombol "Lamar" untuk navigasi ke form lamaran
+class _MainNavigationState extends State<MainNavigation> {
+  int _selectedIndex = 0;
 
-#### F. LamaranPage (Riwayat Lamaran)
+  final List<Widget> _pages = [
+    const HomePage(),
+    const LowonganPage(),
+    const LamaranPage(),
+  ];
 
-- ListView.builder menampilkan riwayat lamaran user
-- Status lamaran dengan warna berbeda (pending, accepted, rejected)
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
-#### G. ProfilePage (Profil Pengguna)
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.work_outline),
+            activeIcon: Icon(Icons.work),
+            label: 'Lowongan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.description_outlined),
+            activeIcon: Icon(Icons.description),
+            label: 'Lamaran',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+```
 
-- CircleAvatar untuk foto profil
-- Informasi user (nama, email, telepon)
-- Tombol navigasi ke settings dan logout
+#### C. dummy_data.dart - Data Dummy
 
-#### H. SettingsPage (Pengaturan)
+```dart
+// Data Dummy Lowongan Pekerjaan
+final List<Map<String, String>> lowonganList = [
+  {
+    'posisi': 'Staff IT',
+    'perusahaan': 'PT Maju Jaya',
+    'lokasi': 'Soreang',
+    'tipe': 'Full-time',
+  },
+  {
+    'posisi': 'Admin Gudang',
+    'perusahaan': 'CV Sumber Rejeki',
+    'lokasi': 'Cileunyi',
+    'tipe': 'Kontrak',
+  },
+  // ... data lainnya (8 lowongan)
+];
 
-- SwitchListTile untuk toggle notifikasi dan dark mode
-- CheckboxListTile untuk filter jenis lowongan
-- State management dengan setState()
+// Data Dummy Riwayat Lamaran
+List<Map<String, String>> lamaranList = [
+  {
+    'posisi': 'Staff IT',
+    'perusahaan': 'PT Maju Jaya',
+    'status': 'Diproses',
+    'tanggal': '12-11-2025 08:30',
+  },
+  // ... data lainnya
+];
 
-#### I. ApplyJobPage (Form Lamaran)
+// Data Dummy User Profile
+final Map<String, String> userProfile = {
+  'nama': 'Nama Mahasiswa',
+  'email': 'mahasiswa@email.com',
+  'nim': '123456789',
+  'telepon': '081234567890',
+};
+```
 
-- TextFormField untuk input data lamaran
-- File picker untuk upload CV (PDF/DOC/DOCX)
-- Validasi form dan submit ke lamaranList
+#### D. lowongan_page.dart - ListView.builder
 
-#### J. API Backend (server.js)
+```dart
+import 'package:flutter/material.dart';
+import '../data/dummy_data.dart';
 
-- Express.js server dengan CORS enabled
-- JWT authentication untuk login/register
-- CRUD endpoints untuk lamaran
-- Multer untuk file upload
+class LowonganPage extends StatelessWidget {
+  const LowonganPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Daftar Lowongan Pekerjaan'),
+      ),
+      body: Column(
+        children: [
+          // Header Info
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+            child: Text(
+              '${lowonganList.length} Lowongan Tersedia',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+          // List Lowongan dengan ListView.builder
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: lowonganList.length,
+              itemBuilder: (context, index) {
+                final lowongan = lowonganList[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  elevation: 3,
+                  child: ListTile(
+                    leading: Icon(Icons.business,
+                        color: Theme.of(context).colorScheme.primary),
+                    title: Text(
+                      lowongan['posisi'] ?? '',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(lowongan['perusahaan'] ?? ''),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(lowongan['tipe'] ?? ''),
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/apply', arguments: lowongan);
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+#### E. auth_service.dart - HTTP API Client
+
+```dart
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class AuthService {
+  static const String baseUrl = 'http://localhost:3000/api';
+
+  // Login
+  static Future<Map<String, dynamic>> login(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      } else {
+        return {'success': false, 'message': jsonDecode(response.body)['message']};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Terjadi kesalahan: $e'};
+    }
+  }
+
+  // Register
+  static Future<Map<String, dynamic>> register({
+    required String nama,
+    required String email,
+    required String password,
+    required String nim,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'nama': nama, 'email': email, 'password': password, 'nim': nim}),
+      );
+
+      if (response.statusCode == 201) {
+        return {'success': true, 'data': jsonDecode(response.body)};
+      }
+      return {'success': false, 'message': 'Registrasi gagal'};
+    } catch (e) {
+      return {'success': false, 'message': 'Terjadi kesalahan: $e'};
+    }
+  }
+}
+```
+
+#### F. lamaran_service.dart - CRUD Operations
+
+```dart
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+
+class LamaranService {
+  static const String baseUrl = 'http://localhost:3000/api';
+
+  // CREATE - Menambah lamaran baru
+  static Future<Map<String, dynamic>> createLamaran({
+    required String token,
+    required int lowonganId,
+    required String pesan,
+    File? cvFile,
+  }) async {
+    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/lamaran'));
+    request.headers['Authorization'] = 'Bearer $token';
+    request.fields['lowongan_id'] = lowonganId.toString();
+    request.fields['pesan'] = pesan;
+
+    if (cvFile != null) {
+      request.files.add(await http.MultipartFile.fromPath('cv', cvFile.path));
+    }
+
+    var response = await http.Response.fromStream(await request.send());
+    return response.statusCode == 201
+        ? {'success': true, 'data': jsonDecode(response.body)}
+        : {'success': false, 'message': 'Gagal mengirim lamaran'};
+  }
+
+  // READ - Mengambil semua lamaran
+  static Future<Map<String, dynamic>> getAllLamaran(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/lamaran'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    return response.statusCode == 200
+        ? {'success': true, 'data': jsonDecode(response.body)}
+        : {'success': false, 'message': 'Gagal mengambil data'};
+  }
+
+  // UPDATE - Memperbarui lamaran
+  static Future<Map<String, dynamic>> updateLamaran({
+    required String token,
+    required int id,
+    String? pesan,
+  }) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/lamaran/$id'),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      body: jsonEncode({'pesan': pesan}),
+    );
+    return response.statusCode == 200
+        ? {'success': true, 'data': jsonDecode(response.body)}
+        : {'success': false, 'message': 'Gagal update'};
+  }
+
+  // DELETE - Menghapus lamaran
+  static Future<Map<String, dynamic>> deleteLamaran(String token, int id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/lamaran/$id'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    return response.statusCode == 200
+        ? {'success': true, 'message': 'Berhasil dihapus'}
+        : {'success': false, 'message': 'Gagal hapus'};
+  }
+}
+```
+
+#### G. settings_page.dart - Switch dan Checkbox
+
+```dart
+import 'package:flutter/material.dart';
+
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  bool _notifikasiAktif = true;
+  bool _darkMode = false;
+  bool _filterFullTime = true;
+  bool _filterPartTime = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Pengaturan')),
+      body: ListView(
+        children: [
+          // Switch untuk Notifikasi
+          SwitchListTile(
+            title: const Text('Notifikasi'),
+            subtitle: const Text('Aktifkan notifikasi lowongan baru'),
+            value: _notifikasiAktif,
+            onChanged: (value) => setState(() => _notifikasiAktif = value),
+          ),
+          // Switch untuk Dark Mode
+          SwitchListTile(
+            title: const Text('Mode Gelap'),
+            subtitle: const Text('Gunakan tema gelap'),
+            value: _darkMode,
+            onChanged: (value) => setState(() => _darkMode = value),
+          ),
+          const Divider(),
+          // Checkbox untuk Filter
+          CheckboxListTile(
+            title: const Text('Full-time'),
+            value: _filterFullTime,
+            onChanged: (value) => setState(() => _filterFullTime = value!),
+          ),
+          CheckboxListTile(
+            title: const Text('Part-time'),
+            value: _filterPartTime,
+            onChanged: (value) => setState(() => _filterPartTime = value!),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+#### H. server.js - Backend API (Node.js)
+
+```javascript
+const express = require('express');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+
+const app = express();
+const JWT_SECRET = 'smartjob_secret_key_2025';
+
+app.use(cors());
+app.use(express.json());
+
+// Middleware Auth
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Token tidak ditemukan' });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Token tidak valid' });
+    req.user = user;
+    next();
+  });
+};
+
+// LOGIN
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = users.find(u => u.email === email);
+  
+  if (!user || !await bcrypt.compare(password, user.password)) {
+    return res.status(401).json({ message: 'Email atau password salah' });
+  }
+
+  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '24h' });
+  res.json({ message: 'Login berhasil', user, token });
+});
+
+// CRUD LAMARAN
+app.post('/api/lamaran', authenticateToken, (req, res) => { /* CREATE */ });
+app.get('/api/lamaran', authenticateToken, (req, res) => { /* READ */ });
+app.put('/api/lamaran/:id', authenticateToken, (req, res) => { /* UPDATE */ });
+app.delete('/api/lamaran/:id', authenticateToken, (req, res) => { /* DELETE */ });
+
+app.listen(3000, () => console.log('Server di http://localhost:3000'));
+```
 
 ---
 
@@ -357,4 +760,4 @@ flutter run -d ios       # Untuk iOS
 
 ---
 
-**Link Github:** [Repository SmartJob Mobile]
+**Link Github:** [[Repository SmartJob Mobile](https://github.com/Jemjeqt/RemedialAss2DPPB)]
